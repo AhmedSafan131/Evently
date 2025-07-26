@@ -2,6 +2,7 @@ import 'package:evently/ui/home/home_screen.dart';
 import 'package:evently/ui/login.dart';
 import 'package:evently/utils/app_color.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -23,7 +24,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? _passwordError;
   String? _confirmPasswordError;
 
-  void _register() {
+  void _register() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -33,41 +34,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _emailError = null;
       _passwordError = null;
       _confirmPasswordError = null;
-      if (name.isEmpty) {
-        _nameError = 'Please enter your name.';
-      }
-      if (email.isEmpty) {
-        _emailError = 'Please enter your email.';
-      } else if (!email.contains('@')) {
-        _emailError = 'Please enter a valid email address.';
-      }
-      if (password.isEmpty) {
-        _passwordError = 'Please enter your password.';
-      } else if (password.length < 6) {
-        _passwordError = 'Password must be at least 6 characters.';
-      }
-      if (confirmPassword.isEmpty) {
-        _confirmPasswordError = 'Please confirm your password.';
-      } else if (confirmPassword != password) {
-        _confirmPasswordError = 'Passwords do not match.';
-      }
     });
-    if (_nameError != null ||
-        _emailError != null ||
-        _passwordError != null ||
-        _confirmPasswordError != null) {
+    if (name.isEmpty) {
+      setState(() => _nameError = 'Please enter your name.');
       return;
     }
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
-    );
+    if (email.isEmpty) {
+      setState(() => _emailError = 'Please enter your email.');
+      return;
+    } else if (!email.contains('@')) {
+      setState(() => _emailError = 'Please enter a valid email address.');
+      return;
+    }
+    if (password.isEmpty) {
+      setState(() => _passwordError = 'Please enter your password.');
+      return;
+    } else if (password.length < 6) {
+      setState(
+          () => _passwordError = 'Password must be at least 6 characters.');
+      return;
+    }
+    if (confirmPassword.isEmpty) {
+      setState(() => _confirmPasswordError = 'Please confirm your password.');
+      return;
+    } else if (confirmPassword != password) {
+      setState(() => _confirmPasswordError = 'Passwords do not match.');
+      return;
+    }
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      // Set the display name
+      await FirebaseAuth.instance.currentUser?.updateDisplayName(name);
+      // Navigate to HomeScreen after successful registration
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        setState(() => _emailError = 'Email is already in use.');
+      } else if (e.code == 'invalid-email') {
+        setState(() => _emailError = 'Invalid email address.');
+      } else if (e.code == 'weak-password') {
+        setState(() => _passwordError = 'Password is too weak.');
+      } else {
+        setState(() => _emailError = e.message ?? 'Registration failed.');
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor:
+          isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -82,7 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
-                const Center(
+                Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
@@ -90,6 +114,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w400,
+                        color: isDark
+                            ? Theme.of(context).colorScheme.onBackground
+                            : Colors.black,
                       ),
                     ),
                   ),
@@ -112,27 +139,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 10),
                       TextField(
                         controller: _nameController,
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(
+                            color: isDark
+                                ? Theme.of(context).colorScheme.onBackground
+                                : Colors.black),
                         decoration: InputDecoration(
                           hintText: 'Name',
                           prefixIcon: Icon(Icons.person_outline,
-                              color: AppColors.greyColor),
+                              color: isDark
+                                  ? Theme.of(context).iconTheme.color
+                                  : Colors.grey),
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: isDark
+                              ? (Theme.of(context)
+                                      .inputDecorationTheme
+                                      .fillColor ??
+                                  Theme.of(context).cardColor)
+                              : Colors.white,
                           contentPadding:
                               const EdgeInsets.symmetric(vertical: 18),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: AppColors.greyColor),
+                            borderSide: BorderSide(
+                                color: isDark
+                                    ? Theme.of(context).dividerColor
+                                    : Colors.grey),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: AppColors.greyColor),
+                            borderSide: BorderSide(
+                                color: isDark
+                                    ? Theme.of(context).dividerColor
+                                    : Colors.grey),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(
-                                color: AppColors.greyColor, width: 2),
+                                color: isDark
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Color(0xFF5669FF),
+                                width: 2),
                           ),
                         ),
                       ),
@@ -141,33 +187,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           padding: const EdgeInsets.only(left: 8.0, top: 4.0),
                           child: Text(
                             _nameError!,
-                            style: TextStyle(color: Colors.red, fontSize: 13),
+                            style: TextStyle(
+                                color: isDark
+                                    ? Theme.of(context).colorScheme.error
+                                    : Colors.red,
+                                fontSize: 13),
                           ),
                         ),
                       const SizedBox(height: 16),
                       TextField(
                         controller: _emailController,
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(
+                            color: isDark
+                                ? Theme.of(context).colorScheme.onBackground
+                                : Colors.black),
                         decoration: InputDecoration(
                           hintText: 'Email',
                           prefixIcon: Icon(Icons.email_outlined,
-                              color: AppColors.greyColor),
+                              color: isDark
+                                  ? Theme.of(context).iconTheme.color
+                                  : Colors.grey),
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: isDark
+                              ? (Theme.of(context)
+                                      .inputDecorationTheme
+                                      .fillColor ??
+                                  Theme.of(context).cardColor)
+                              : Colors.white,
                           contentPadding:
                               const EdgeInsets.symmetric(vertical: 18),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: AppColors.greyColor),
+                            borderSide: BorderSide(
+                                color: isDark
+                                    ? Theme.of(context).dividerColor
+                                    : Colors.grey),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: AppColors.greyColor),
+                            borderSide: BorderSide(
+                                color: isDark
+                                    ? Theme.of(context).dividerColor
+                                    : Colors.grey),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(
-                                color: AppColors.greyColor, width: 2),
+                                color: isDark
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Color(0xFF5669FF),
+                                width: 2),
                           ),
                         ),
                         keyboardType: TextInputType.emailAddress,
@@ -177,41 +246,66 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           padding: const EdgeInsets.only(left: 8.0, top: 4.0),
                           child: Text(
                             _emailError!,
-                            style: TextStyle(color: Colors.red, fontSize: 13),
+                            style: TextStyle(
+                                color: isDark
+                                    ? Theme.of(context).colorScheme.error
+                                    : Colors.red,
+                                fontSize: 13),
                           ),
                         ),
                       const SizedBox(height: 16),
                       TextField(
                         controller: _passwordController,
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(
+                            color: isDark
+                                ? Theme.of(context).colorScheme.onBackground
+                                : Colors.black),
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           hintText: 'Password',
                           prefixIcon: Icon(Icons.lock_outline,
-                              color: AppColors.greyColor),
+                              color: isDark
+                                  ? Theme.of(context).iconTheme.color
+                                  : Colors.grey),
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: isDark
+                              ? (Theme.of(context)
+                                      .inputDecorationTheme
+                                      .fillColor ??
+                                  Theme.of(context).cardColor)
+                              : Colors.white,
                           contentPadding:
                               const EdgeInsets.symmetric(vertical: 18),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: AppColors.greyColor),
+                            borderSide: BorderSide(
+                                color: isDark
+                                    ? Theme.of(context).dividerColor
+                                    : Colors.grey),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: AppColors.greyColor),
+                            borderSide: BorderSide(
+                                color: isDark
+                                    ? Theme.of(context).dividerColor
+                                    : Colors.grey),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(
-                                color: AppColors.greyColor, width: 2),
+                                color: isDark
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Color(0xFF5669FF),
+                                width: 2),
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
                                 _obscurePassword
                                     ? Icons.visibility_off
                                     : Icons.visibility,
-                                color: AppColors.greyColor),
+                                color: isDark
+                                    ? Theme.of(context).iconTheme.color
+                                    : Colors.grey),
                             onPressed: () {
                               setState(() {
                                 _obscurePassword = !_obscurePassword;
@@ -225,41 +319,66 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           padding: const EdgeInsets.only(left: 8.0, top: 4.0),
                           child: Text(
                             _passwordError!,
-                            style: TextStyle(color: Colors.red, fontSize: 13),
+                            style: TextStyle(
+                                color: isDark
+                                    ? Theme.of(context).colorScheme.error
+                                    : Colors.red,
+                                fontSize: 13),
                           ),
                         ),
                       const SizedBox(height: 16),
                       TextField(
                         controller: _confirmPasswordController,
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(
+                            color: isDark
+                                ? Theme.of(context).colorScheme.onBackground
+                                : Colors.black),
                         obscureText: _obscureConfirmPassword,
                         decoration: InputDecoration(
                           hintText: 'Confirm Password',
                           prefixIcon: Icon(Icons.lock_outline,
-                              color: AppColors.greyColor),
+                              color: isDark
+                                  ? Theme.of(context).iconTheme.color
+                                  : Colors.grey),
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: isDark
+                              ? (Theme.of(context)
+                                      .inputDecorationTheme
+                                      .fillColor ??
+                                  Theme.of(context).cardColor)
+                              : Colors.white,
                           contentPadding:
                               const EdgeInsets.symmetric(vertical: 18),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: AppColors.greyColor),
+                            borderSide: BorderSide(
+                                color: isDark
+                                    ? Theme.of(context).dividerColor
+                                    : Colors.grey),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: AppColors.greyColor),
+                            borderSide: BorderSide(
+                                color: isDark
+                                    ? Theme.of(context).dividerColor
+                                    : Colors.grey),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(
-                                color: AppColors.greyColor, width: 2),
+                                color: isDark
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Color(0xFF5669FF),
+                                width: 2),
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
                                 _obscureConfirmPassword
                                     ? Icons.visibility_off
                                     : Icons.visibility,
-                                color: AppColors.greyColor),
+                                color: isDark
+                                    ? Theme.of(context).iconTheme.color
+                                    : Colors.grey),
                             onPressed: () {
                               setState(() {
                                 _obscureConfirmPassword =
@@ -274,7 +393,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           padding: const EdgeInsets.only(left: 8.0, top: 4.0),
                           child: Text(
                             _confirmPasswordError!,
-                            style: TextStyle(color: Colors.red, fontSize: 13),
+                            style: TextStyle(
+                                color: isDark
+                                    ? Theme.of(context).colorScheme.error
+                                    : Colors.red,
+                                fontSize: 13),
                           ),
                         ),
                       const SizedBox(height: 8),
@@ -283,12 +406,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: ElevatedButton(
                           onPressed: _register,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF5B7FFF),
+                            backgroundColor: isDark
+                                ? Theme.of(context).colorScheme.primary
+                                : Color(0xFF5B7FFF),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text('Create Account',
+                          child: Text('Create Account',
                               style:
                                   TextStyle(fontSize: 18, color: Colors.white)),
                         ),
@@ -297,8 +422,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text("Already have an account? ",
-                              style: TextStyle(fontSize: 14)),
+                          Text("Already have an account? ",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: isDark
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .onBackground
+                                      : Colors.black)),
                           GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -307,14 +438,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     builder: (context) => const LoginScreen()),
                               );
                             },
-                            child: const Text(
+                            child: Text(
                               'Login',
                               style: TextStyle(
-                                color: AppColors.primaryLight,
+                                color: Color(0xFF5669FF),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                                 decoration: TextDecoration.underline,
-                                decorationColor: AppColors.primaryLight,
+                                decorationColor: Color(0xFF5669FF),
                               ),
                             ),
                           ),

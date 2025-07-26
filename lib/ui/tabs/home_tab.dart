@@ -28,8 +28,13 @@ class _HomeTabState extends State<HomeTab> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.themeMode == ThemeMode.dark;
+    final user = FirebaseAuth.instance.currentUser;
     return StreamBuilder(
-      stream: FirebaseUtils.getEventsCollection().snapshots(),
+      stream: user == null
+          ? const Stream.empty()
+          : FirebaseUtils.getEventsCollection()
+              .where('userId', isEqualTo: user.uid)
+              .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -78,8 +83,6 @@ class _HomeTabState extends State<HomeTab> {
                       separatorBuilder: (_, __) => const SizedBox(height: 16),
                       itemBuilder: (context, index) {
                         final event = filteredEvents[index];
-                        final isFav =
-                            GlobalFavoriteStore.favorites.contains(event);
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -92,15 +95,10 @@ class _HomeTabState extends State<HomeTab> {
                           },
                           child: EventCard(
                             event: event,
-                            isFavorite: isFav,
+                            isFavorite: event.isFavorite,
                             onFavoriteToggle: () {
-                              setState(() {
-                                if (isFav) {
-                                  GlobalFavoriteStore.favorites.remove(event);
-                                } else {
-                                  GlobalFavoriteStore.favorites.add(event);
-                                }
-                              });
+                              FirebaseUtils.updateEventFavoriteStatus(
+                                  event.id, !event.isFavorite);
                             },
                             onDelete: () async {
                               await FirebaseUtils.deleteEventFromFireStore(
@@ -134,6 +132,8 @@ class _HomeAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.themeMode == ThemeMode.dark;
+    final user = FirebaseAuth.instance.currentUser;
+    final displayName = user?.displayName ?? 'Guest';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 40, 20, 24),
@@ -152,7 +152,7 @@ class _HomeAppBar extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'Welcome Back ✨',
                       style: TextStyle(
@@ -162,8 +162,9 @@ class _HomeAppBar extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 4),
+                    // Show the user's display name
                     Text(
-                      'Ahmed safan ',
+                      displayName,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,

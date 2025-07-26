@@ -128,23 +128,39 @@ class _EditEventScreenState extends State<EditEventScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: isDark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : AppColors.whiteColor,
       appBar: AppBar(
-        backgroundColor: AppColors.whiteColor,
+        backgroundColor: isDark
+            ? Theme.of(context).scaffoldBackgroundColor
+            : AppColors.whiteColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.primaryLight),
+          icon: Icon(Icons.arrow_back_ios,
+              color: isDark
+                  ? Theme.of(context).colorScheme.primary
+                  : AppColors.primaryLight),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Edit Event', style: AppStyles.bold20Primary),
+        title: Text('Edit Event',
+            style: isDark
+                ? TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20)
+                : AppStyles.bold20Primary),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.whiteColor,
+            color: isDark
+                ? Theme.of(context).scaffoldBackgroundColor
+                : AppColors.whiteColor,
             borderRadius: BorderRadius.circular(24),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
@@ -182,64 +198,116 @@ class _EditEventScreenState extends State<EditEventScreen> {
               ),
               const SizedBox(height: 16),
               // Title
-              Text('Title', style: AppStyles.bold14Black),
+              Text('Title',
+                  style: isDark
+                      ? TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14)
+                      : AppStyles.bold14Black),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _titleController,
-                style: TextStyle(color: AppColors.greyColor),
+                style: TextStyle(
+                    color: isDark
+                        ? Theme.of(context).colorScheme.primary
+                        : AppColors.greyColor),
                 decoration: InputDecoration(
                   hintText: 'Event Title',
-                  hintStyle: TextStyle(color: AppColors.greyColor),
+                  hintStyle: TextStyle(
+                      color: isDark
+                          ? Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.5)
+                          : AppColors.greyColor),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   filled: true,
-                  fillColor: AppColors.whiteColor,
+                  fillColor: isDark
+                      ? Theme.of(context).cardColor
+                      : AppColors.whiteColor,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                        color: AppColors.greyColor, width: 1.2),
+                    borderSide: BorderSide(
+                        color: isDark
+                            ? Theme.of(context).dividerColor
+                            : AppColors.greyColor,
+                        width: 1.2),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        const BorderSide(color: AppColors.greyColor, width: 2),
+                    borderSide: BorderSide(
+                        color: isDark
+                            ? Theme.of(context).colorScheme.primary
+                            : AppColors.greyColor,
+                        width: 2),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                        color: AppColors.greyColor, width: 1.2),
+                    borderSide: BorderSide(
+                        color: isDark
+                            ? Theme.of(context).dividerColor
+                            : AppColors.greyColor,
+                        width: 1.2),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
               // Description
-              Text('Description', style: AppStyles.bold14Black),
+              Text('Description',
+                  style: isDark
+                      ? TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14)
+                      : AppStyles.bold14Black),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
-                style: TextStyle(color: AppColors.greyColor),
+                style: TextStyle(
+                    color: isDark
+                        ? Theme.of(context).colorScheme.primary
+                        : AppColors.greyColor),
                 decoration: InputDecoration(
                   hintText: 'Event Description',
-                  hintStyle: TextStyle(color: AppColors.greyColor),
+                  hintStyle: TextStyle(
+                      color: isDark
+                          ? Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.5)
+                          : AppColors.greyColor),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   filled: true,
-                  fillColor: AppColors.whiteColor,
+                  fillColor: isDark
+                      ? Theme.of(context).cardColor
+                      : AppColors.whiteColor,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                        color: AppColors.greyColor, width: 1.2),
+                    borderSide: BorderSide(
+                        color: isDark
+                            ? Theme.of(context).dividerColor
+                            : AppColors.greyColor,
+                        width: 1.2),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        const BorderSide(color: AppColors.greyColor, width: 2),
+                    borderSide: BorderSide(
+                        color: isDark
+                            ? Theme.of(context).colorScheme.primary
+                            : AppColors.greyColor,
+                        width: 2),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                        color: AppColors.greyColor, width: 1.2),
+                    borderSide: BorderSide(
+                        color: isDark
+                            ? Theme.of(context).dividerColor
+                            : AppColors.greyColor,
+                        width: 1.2),
                   ),
                 ),
               ),
@@ -250,12 +318,26 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 borderRadius: BorderRadius.circular(12),
                 child: Row(
                   children: [
-                    const Icon(Icons.event,
-                        color: AppColors.primaryLight, size: 20),
+                    Icon(Icons.event,
+                        color: isDark
+                            ? Theme.of(context).colorScheme.primary
+                            : AppColors.primaryLight,
+                        size: 20),
                     const SizedBox(width: 8),
-                    Text('Event Date', style: AppStyles.bold14Black),
+                    Text('Event Date',
+                        style: isDark
+                            ? TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14)
+                            : AppStyles.bold14Black),
                     const Spacer(),
-                    Text(formattedDate, style: AppStyles.bold14Primary),
+                    Text(formattedDate,
+                        style: isDark
+                            ? TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold)
+                            : AppStyles.bold14Primary),
                   ],
                 ),
               ),
@@ -265,35 +347,68 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 borderRadius: BorderRadius.circular(12),
                 child: Row(
                   children: [
-                    const Icon(Icons.access_time,
-                        color: AppColors.primaryLight, size: 20),
+                    Icon(Icons.access_time,
+                        color: isDark
+                            ? Theme.of(context).colorScheme.primary
+                            : AppColors.primaryLight,
+                        size: 20),
                     const SizedBox(width: 8),
-                    Text('Event Time', style: AppStyles.bold14Black),
+                    Text('Event Time',
+                        style: isDark
+                            ? TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14)
+                            : AppStyles.bold14Black),
                     const Spacer(),
-                    Text(formattedTime, style: AppStyles.bold14Primary),
+                    Text(formattedTime,
+                        style: isDark
+                            ? TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold)
+                            : AppStyles.bold14Primary),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
               // Location
-              Text('Location', style: AppStyles.bold14Black),
+              Text('Location',
+                  style: isDark
+                      ? TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14)
+                      : AppStyles.bold14Black),
               const SizedBox(height: 8),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.whiteColor,
+                  color: isDark
+                      ? Theme.of(context).cardColor
+                      : AppColors.whiteColor,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primaryLight, width: 1.2),
+                  border: Border.all(
+                      color: isDark
+                          ? Theme.of(context).colorScheme.primary
+                          : AppColors.primaryLight,
+                      width: 1.2),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.location_on,
-                        color: AppColors.primaryLight),
+                    Icon(Icons.location_on,
+                        color: isDark
+                            ? Theme.of(context).colorScheme.primary
+                            : AppColors.primaryLight),
                     const SizedBox(width: 8),
                     Expanded(
-                      child:
-                          Text('Cairo , Egypt', style: AppStyles.bold14Black),
+                      child: Text('Cairo , Egypt',
+                          style: isDark
+                              ? TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14)
+                              : AppStyles.bold14Black),
                     ),
                   ],
                 ),
@@ -305,7 +420,9 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 height: 48,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryLight,
+                    backgroundColor: isDark
+                        ? Theme.of(context).colorScheme.primary
+                        : AppColors.primaryLight,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -324,12 +441,19 @@ class _EditEventScreenState extends State<EditEventScreen> {
                       dateTime: selectedDate,
                       time: formattedTime,
                       isFavorite: widget.event.isFavorite,
+                      userId: widget.event.userId,
                     );
                     await FirebaseUtils.updateEventInFireStore(updatedEvent);
                     Navigator.of(context)
                         .pushNamedAndRemoveUntil('/home', (route) => false);
                   },
-                  child: Text('Update Event', style: AppStyles.bold16White),
+                  child: Text('Update Event',
+                      style: isDark
+                          ? TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16)
+                          : AppStyles.bold16White),
                 ),
               ),
             ],

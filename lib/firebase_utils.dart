@@ -31,4 +31,10 @@ class FirebaseUtils {
     var eventsCollection = getEventsCollection();
     return eventsCollection.doc(eventId).delete();
   }
+
+  static Future<void> updateEventFavoriteStatus(
+      String eventId, bool isFavorite) {
+    var eventsCollection = getEventsCollection();
+    return eventsCollection.doc(eventId).update({'isFavorite': isFavorite});
+  }
 }

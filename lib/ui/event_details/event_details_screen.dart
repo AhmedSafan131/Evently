@@ -12,20 +12,37 @@ class EventDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: isDark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : AppColors.whiteColor,
       appBar: AppBar(
-        backgroundColor: AppColors.whiteColor,
+        backgroundColor: isDark
+            ? Theme.of(context).scaffoldBackgroundColor
+            : AppColors.whiteColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.primaryLight),
+          icon: Icon(Icons.arrow_back_ios,
+              color: isDark
+                  ? Theme.of(context).colorScheme.primary
+                  : AppColors.primaryLight),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Event Details', style: AppStyles.bold20Primary),
+        title: Text('Event Details',
+            style: isDark
+                ? TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20)
+                : AppStyles.bold20Primary),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit, color: AppColors.primaryLight),
+            icon: Icon(Icons.edit,
+                color: isDark
+                    ? Theme.of(context).colorScheme.primary
+                    : AppColors.primaryLight),
             onPressed: () async {
               final updated = await Navigator.push<Event>(
                 context,
@@ -45,7 +62,10 @@ class EventDetailsScreen extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.delete, color: AppColors.redColor),
+            icon: Icon(Icons.delete,
+                color: isDark
+                    ? Theme.of(context).colorScheme.error
+                    : AppColors.redColor),
             onPressed: () async {
               await FirebaseUtils.deleteEventFromFireStore(event.id);
               Navigator.of(context).pop();
@@ -70,27 +90,55 @@ class EventDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             // Title
-            Text(event.title, style: AppStyles.bold16Primary),
+            Text(event.title,
+                style: isDark
+                    ? TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16)
+                    : AppStyles.bold16Primary),
             const SizedBox(height: 12),
             // Date & Time
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: AppColors.whiteColor,
+                color:
+                    isDark ? Theme.of(context).cardColor : AppColors.whiteColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primaryLight, width: 1.2),
+                border: Border.all(
+                    color: isDark
+                        ? Theme.of(context).colorScheme.primary
+                        : AppColors.primaryLight,
+                    width: 1.2),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.event, color: AppColors.primaryLight),
+                  Icon(Icons.event,
+                      color: isDark
+                          ? Theme.of(context).colorScheme.primary
+                          : AppColors.primaryLight),
                   const SizedBox(width: 8),
                   Text(
                       '${event.dateTime.day.toString().padLeft(2, '0')} ${_monthName(event.dateTime.month)} ${event.dateTime.year}',
-                      style: AppStyles.bold14Primary),
+                      style: isDark
+                          ? TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14)
+                          : AppStyles.bold14Primary),
                   const Spacer(),
-                  const Icon(Icons.access_time, color: AppColors.primaryLight),
+                  Icon(Icons.access_time,
+                      color: isDark
+                          ? Theme.of(context).colorScheme.primary
+                          : AppColors.primaryLight),
                   const SizedBox(width: 4),
-                  Text(event.time, style: AppStyles.bold14Primary),
+                  Text(event.time,
+                      style: isDark
+                          ? TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14)
+                          : AppStyles.bold14Primary),
                 ],
               ),
             ),
@@ -99,17 +147,30 @@ class EventDetailsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: AppColors.whiteColor,
+                color:
+                    isDark ? Theme.of(context).cardColor : AppColors.whiteColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primaryLight, width: 1.2),
+                border: Border.all(
+                    color: isDark
+                        ? Theme.of(context).colorScheme.primary
+                        : AppColors.primaryLight,
+                    width: 1.2),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.location_on, color: AppColors.primaryLight),
+                  Icon(Icons.location_on,
+                      color: isDark
+                          ? Theme.of(context).colorScheme.primary
+                          : AppColors.primaryLight),
                   const SizedBox(width: 8),
                   Expanded(
                       child: Text('Cairo , Egypt',
-                          style: AppStyles.bold14Primary)),
+                          style: isDark
+                              ? TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14)
+                              : AppStyles.bold14Primary)),
                 ],
               ),
             ),
@@ -119,32 +180,56 @@ class EventDetailsScreen extends StatelessWidget {
               height: 160,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: AppColors.whiteBgColor,
+                color: isDark
+                    ? Theme.of(context).cardColor
+                    : AppColors.whiteBgColor,
                 borderRadius: BorderRadius.circular(16),
-                border:
-                    Border.all(color: AppColors.primaryLight.withOpacity(0.2)),
+                border: Border.all(
+                    color: (isDark
+                            ? Theme.of(context).colorScheme.primary
+                            : AppColors.primaryLight)
+                        .withOpacity(0.2)),
               ),
-              child: const Center(
-                  child:
-                      Icon(Icons.map, size: 60, color: AppColors.primaryLight)),
+              child: Center(
+                  child: Icon(Icons.map,
+                      size: 60,
+                      color: isDark
+                          ? Theme.of(context).colorScheme.primary
+                          : AppColors.primaryLight)),
             ),
             const SizedBox(height: 12),
             // Description
-            Text('Description', style: AppStyles.bold14Black),
+            Text('Description',
+                style: isDark
+                    ? TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14)
+                    : AppStyles.bold14Black),
             const SizedBox(height: 4),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.whiteColor,
+                color:
+                    isDark ? Theme.of(context).cardColor : AppColors.whiteColor,
                 borderRadius: BorderRadius.circular(12),
-                border:
-                    Border.all(color: AppColors.primaryLight.withOpacity(0.2)),
+                border: Border.all(
+                    color: (isDark
+                            ? Theme.of(context).colorScheme.primary
+                            : AppColors.primaryLight)
+                        .withOpacity(0.2)),
               ),
               child: Text(
                 event.description,
-                style:
-                    const TextStyle(fontSize: 14, color: AppColors.greyColor),
+                style: isDark
+                    ? TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.7))
+                    : TextStyle(fontSize: 14, color: AppColors.greyColor),
               ),
             ),
           ],

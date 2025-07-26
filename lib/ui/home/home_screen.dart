@@ -69,20 +69,20 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildTabItem(
                   index: 0,
                   icon: Icons.home,
-                  label: AppLocalizations.of(context)!.home),
+                  label: AppLocalizations.of(context)?.home ?? 'Home'),
               _buildTabItem(
                   index: 1,
                   icon: Icons.location_on_outlined,
-                  label: AppLocalizations.of(context)!.map),
+                  label: AppLocalizations.of(context)?.map ?? 'Map'),
               const SizedBox(width: 40), // Space for FAB
               _buildTabItem(
                   index: 2,
                   icon: Icons.favorite_border,
-                  label: AppLocalizations.of(context)!.love),
+                  label: AppLocalizations.of(context)?.love ?? 'Love'),
               _buildTabItem(
                   index: 3,
                   icon: Icons.person_outline,
-                  label: AppLocalizations.of(context)!.profile),
+                  label: AppLocalizations.of(context)?.profile ?? 'Profile'),
             ],
           ),
         ),

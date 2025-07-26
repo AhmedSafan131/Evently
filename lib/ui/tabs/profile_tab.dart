@@ -5,6 +5,8 @@ import 'package:evently/utils/locale_provider.dart';
 import 'package:evently/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -19,12 +21,13 @@ class _ProfileTabState extends State<ProfileTab> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
     final currentLocale = localeProvider.locale;
+    final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
-          _buildHeader(),
+          _buildHeader(user),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -32,7 +35,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildDropdownSection(
-                    title: AppLocalizations.of(context)!.language,
+                    title: AppLocalizations.of(context)?.language ?? 'Language',
                     value: currentLocale.languageCode == 'ar'
                         ? 'Arabic'
                         : 'English',
@@ -47,7 +50,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   ),
                   const SizedBox(height: 20),
                   _buildDropdownSection(
-                    title: AppLocalizations.of(context)!.theme,
+                    title: AppLocalizations.of(context)?.theme ?? 'Theme',
                     value: themeProvider.themeMode == ThemeMode.dark
                         ? 'Dark'
                         : 'Light',
@@ -70,13 +73,18 @@ class _ProfileTabState extends State<ProfileTab> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(User? user) {
+    final displayName = user?.displayName ?? 'Guest';
+    final email = user?.email ?? 'No email';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
-      decoration: const BoxDecoration(
-        color: AppColors.primaryLight,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: isDark
+            ? Theme.of(context).colorScheme.primary
+            : AppColors.primaryLight,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(60),
         ),
       ),
@@ -101,10 +109,10 @@ class _ProfileTabState extends State<ProfileTab> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Ahmed Safan', style: AppStyles.bold20White),
+              Text(displayName, style: AppStyles.bold20White),
               const SizedBox(height: 5),
               Text(
-                'ahmedsafan.route@gmail.com',
+                email,
                 style: AppStyles.bold14White.copyWith(
                   fontWeight: FontWeight.normal,
                   color: Colors.white70,
@@ -163,8 +171,16 @@ class _ProfileTabState extends State<ProfileTab> {
 
   Widget _buildLogoutButton() {
     return ElevatedButton(
-      onPressed: () {
-        // Handle logout
+      onPressed: () async {
+        // Sign out from Firebase and Google
+        await FirebaseAuth.instance.signOut();
+        try {
+          await GoogleSignIn().signOut();
+        } catch (_) {}
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, '/login', (route) => false);
+        }
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.redColor,
@@ -178,7 +194,7 @@ class _ProfileTabState extends State<ProfileTab> {
         children: [
           const Icon(Icons.logout, color: Colors.white),
           const SizedBox(width: 10),
-          Text(AppLocalizations.of(context)!.logout,
+          Text(AppLocalizations.of(context)?.logout ?? 'Logout',
               style: AppStyles.bold16White),
         ],
       ),

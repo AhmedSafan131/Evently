@@ -8,16 +8,19 @@ class Event {
   DateTime dateTime;
   String time;
   bool isFavorite;
+  String userId;
 
-  Event(
-      {this.id = '',
-      required this.image,
-      required this.title,
-      required this.description,
-      required this.eventName,
-      required this.dateTime,
-      required this.time,
-      this.isFavorite = false});
+  Event({
+    this.id = '',
+    required this.image,
+    required this.title,
+    required this.description,
+    required this.eventName,
+    required this.dateTime,
+    required this.time,
+    this.isFavorite = false,
+    required this.userId,
+  });
 
   //todo: json => Object
   Event.fromFireStore(Map<String, dynamic> data)
@@ -30,6 +33,7 @@ class Event {
           dateTime: DateTime.fromMillisecondsSinceEpoch(data['dateTime']),
           time: data['time'],
           isFavorite: data['isFavorite'],
+          userId: data['userId'],
         );
   //todo: object => json
   Map<String, dynamic> toFireStore() {
@@ -42,6 +46,7 @@ class Event {
       'dateTime': dateTime.millisecondsSinceEpoch,
       'time': time,
       'isFavorite': isFavorite,
+      'userId': userId,
     };
   }
 

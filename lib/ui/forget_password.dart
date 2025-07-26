@@ -5,8 +5,11 @@ class ForgetPasswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FCFF),
+      backgroundColor: isDark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : Color(0xFFF6FCFF),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -21,7 +24,7 @@ class ForgetPasswordScreen extends StatelessWidget {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
-                const Center(
+                Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
@@ -29,6 +32,9 @@ class ForgetPasswordScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w400,
+                        color: isDark
+                            ? Theme.of(context).colorScheme.onBackground
+                            : Colors.black,
                       ),
                     ),
                   ),
@@ -54,12 +60,14 @@ class ForgetPasswordScreen extends StatelessWidget {
                     // TODO: Implement reset password logic
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B7FFF),
+                    backgroundColor: isDark
+                        ? Theme.of(context).colorScheme.primary
+                        : Color(0xFF5B7FFF),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Reset Password',
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
